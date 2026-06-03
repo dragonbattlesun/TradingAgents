@@ -61,3 +61,30 @@ class TestBedrockClient:
             }
         else:
             assert "additional_model_request_fields" not in captured["kwargs"]
+
+
+@pytest.mark.unit
+class TestBedrockFactoryWiring:
+    def test_factory_returns_bedrock_client(self, monkeypatch):
+        from tradingagents.llm_clients.factory import create_llm_client
+        # Avoid actually instantiating ChatBedrockConverse — patch before
+        # calling get_llm so no real boto3 client is built.
+        monkeypatch.setattr(
+            mod, "NormalizedChatBedrockConverse",
+            lambda **kwargs: object(),
+        )
+        client = create_llm_client(
+            "bedrock",
+            "us.anthropic.claude-opus-4-7",
+        )
+        assert isinstance(client, mod.BedrockClient)
+        assert client.model == "us.anthropic.claude-opus-4-7"
+
+
+@pytest.mark.unit
+class TestApiKeyEnvMapping:
+    def test_bedrock_maps_to_aws_bearer_token(self):
+        from tradingagents.llm_clients.api_key_env import get_api_key_env
+        assert get_api_key_env("bedrock") == "AWS_BEARER_TOKEN_BEDROCK"
+        # Case-insensitive — same convention used by other providers.
+        assert get_api_key_env("BEDROCK") == "AWS_BEARER_TOKEN_BEDROCK"

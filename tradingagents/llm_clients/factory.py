@@ -46,6 +46,10 @@ def create_llm_client(
         from .anthropic_client import AnthropicClient
         return AnthropicClient(model, base_url, **kwargs)
 
+    if provider_lower == "bedrock":
+        from .bedrock_client import BedrockClient
+        return BedrockClient(model, base_url, **kwargs)
+
     if provider_lower == "google":
         from .google_client import GoogleClient
         return GoogleClient(model, base_url, **kwargs)
