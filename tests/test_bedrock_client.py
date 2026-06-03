@@ -67,8 +67,8 @@ class TestBedrockClient:
 class TestBedrockFactoryWiring:
     def test_factory_returns_bedrock_client(self, monkeypatch):
         from tradingagents.llm_clients.factory import create_llm_client
-        # Avoid actually instantiating ChatBedrockConverse — patch before
-        # calling get_llm so no real boto3 client is built.
+        # Patch the constructor so get_llm() doesn't build a real boto3
+        # client (no AWS_BEARER_TOKEN_BEDROCK in test env).
         monkeypatch.setattr(
             mod, "NormalizedChatBedrockConverse",
             lambda **kwargs: object(),
@@ -79,6 +79,10 @@ class TestBedrockFactoryWiring:
         )
         assert isinstance(client, mod.BedrockClient)
         assert client.model == "us.anthropic.claude-opus-4-7"
+        # Exercise the factory→client→get_llm chain so the monkeypatch
+        # actually does work — proves the wiring builds something
+        # without hitting boto3.
+        assert client.get_llm() is not None
 
 
 @pytest.mark.unit

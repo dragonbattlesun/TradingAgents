@@ -17,6 +17,9 @@ from typing import Optional
 PROVIDER_API_KEY_ENV: dict[str, Optional[str]] = {
     "openai":     "OPENAI_API_KEY",
     "anthropic":  "ANTHROPIC_API_KEY",
+    # Bedrock-specific bearer token (boto3 reads it for short-lived IAM
+    # role auth). The standard AWS credential chain (AWS_ACCESS_KEY_ID,
+    # AWS_PROFILE, etc.) is also honored by boto3 if this is unset.
     "bedrock":    "AWS_BEARER_TOKEN_BEDROCK",
     "google":     "GOOGLE_API_KEY",
     "azure":      "AZURE_OPENAI_API_KEY",
