@@ -73,6 +73,28 @@ _MINIMAX_MODELS: Dict[str, List[ModelOption]] = {
 }
 
 
+# Shared model list for AWS Bedrock — Anthropic Claude only.
+# Bedrock model IDs carry a region prefix ("us.", "apac.", "eu.") that
+# the Custom model ID escape hatch handles. Concrete entries use the
+# us.* IDs that match what the user's shell already targets.
+_BEDROCK_MODELS: Dict[str, List[ModelOption]] = {
+    "quick": [
+        ("Claude Haiku 4.5 (Bedrock) - Fastest, near-frontier",
+         "us.anthropic.claude-haiku-4-5-20251001-v1:0"),
+        ("Claude Sonnet 4.6 (Bedrock) - Speed/intelligence balance",
+         "us.anthropic.claude-sonnet-4-6"),
+        ("Custom model ID", "custom"),
+    ],
+    "deep": [
+        ("Claude Opus 4.7 (Bedrock) - Frontier, long-running agents",
+         "us.anthropic.claude-opus-4-7"),
+        ("Claude Sonnet 4.6 (Bedrock) - Speed/intelligence balance",
+         "us.anthropic.claude-sonnet-4-6"),
+        ("Custom model ID", "custom"),
+    ],
+}
+
+
 MODEL_OPTIONS: ProviderModeOptions = {
     "openai": {
         "quick": [
@@ -101,6 +123,9 @@ MODEL_OPTIONS: ProviderModeOptions = {
             ("Claude Sonnet 4.6 - Best speed and intelligence balance", "claude-sonnet-4-6"),
         ],
     },
+    # AWS Bedrock — Anthropic Claude only. Custom model ID escape hatch
+    # covers cross-region IDs (apac.*, eu.*) and other versions.
+    "bedrock": _BEDROCK_MODELS,
     "google": {
         "quick": [
             ("Gemini 3.5 Flash - Latest, frontier agentic + coding (GA)", "gemini-3.5-flash"),

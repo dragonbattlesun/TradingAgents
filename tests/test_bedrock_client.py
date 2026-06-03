@@ -92,3 +92,24 @@ class TestApiKeyEnvMapping:
         assert get_api_key_env("bedrock") == "AWS_BEARER_TOKEN_BEDROCK"
         # Case-insensitive — same convention used by other providers.
         assert get_api_key_env("BEDROCK") == "AWS_BEARER_TOKEN_BEDROCK"
+
+
+@pytest.mark.unit
+class TestBedrockModelCatalog:
+    def test_quick_and_deep_options_have_three_entries_each(self):
+        from tradingagents.llm_clients.model_catalog import get_model_options
+        quick = get_model_options("bedrock", "quick")
+        deep = get_model_options("bedrock", "deep")
+        # Two concrete models + Custom model ID.
+        assert len(quick) == 3
+        assert len(deep) == 3
+        # Custom escape hatch is always last.
+        assert quick[-1] == ("Custom model ID", "custom")
+        assert deep[-1] == ("Custom model ID", "custom")
+
+    def test_concrete_model_ids_use_us_anthropic_prefix(self):
+        from tradingagents.llm_clients.model_catalog import get_model_options
+        for label, value in get_model_options("bedrock", "deep")[:-1]:
+            assert value.startswith("us.anthropic.claude-")
+        for label, value in get_model_options("bedrock", "quick")[:-1]:
+            assert value.startswith("us.anthropic.claude-")
