@@ -146,3 +146,17 @@ class TestProviderKwargsForBedrock:
 
         kwargs = method(Stub())
         assert "effort" not in kwargs
+
+
+@pytest.mark.unit
+class TestCliProviderTable:
+    def test_bedrock_row_present(self):
+        from cli.utils import _llm_provider_table
+        rows = _llm_provider_table()
+        bedrock_rows = [row for row in rows if row[1] == "bedrock"]
+        assert len(bedrock_rows) == 1
+        display, key, base_url = bedrock_rows[0]
+        assert display == "AWS Bedrock"
+        assert key == "bedrock"
+        # Bedrock derives its endpoint from region_name, not a URL.
+        assert base_url is None
