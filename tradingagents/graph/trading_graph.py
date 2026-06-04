@@ -155,6 +155,13 @@ class TradingAgentsGraph:
             if effort:
                 kwargs["effort"] = effort
 
+        elif provider == "bedrock":
+            # Bedrock-on-Anthropic uses the same effort knob as direct
+            # Anthropic — users see one config key for one concept.
+            effort = self.config.get("anthropic_effort")
+            if effort:
+                kwargs["effort"] = effort
+
         # Sampling temperature is cross-provider: forward it whenever set.
         # float() here so a value coming from a TRADINGAGENTS_TEMPERATURE env
         # string ("0.2") works the same as a programmatic float.

@@ -113,3 +113,34 @@ class TestBedrockModelCatalog:
             assert value.startswith("us.anthropic.claude-")
         for label, value in get_model_options("bedrock", "quick")[:-1]:
             assert value.startswith("us.anthropic.claude-")
+
+
+@pytest.mark.unit
+class TestProviderKwargsForBedrock:
+    """The trading graph's _get_provider_kwargs must pass anthropic_effort
+    through for the bedrock provider so a single knob controls both."""
+
+    def _make_graph_method(self):
+        # Construct a stand-in object that has the relevant fields without
+        # spinning up the full TradingAgentsGraph (which builds LLM clients
+        # and a langgraph workflow).
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
+        return TradingAgentsGraph._get_provider_kwargs
+
+    def test_anthropic_effort_flows_through_for_bedrock(self):
+        method = self._make_graph_method()
+
+        class Stub:
+            config = {"llm_provider": "bedrock", "anthropic_effort": "high"}
+
+        kwargs = method(Stub())
+        assert kwargs.get("effort") == "high"
+
+    def test_no_effort_when_unset(self):
+        method = self._make_graph_method()
+
+        class Stub:
+            config = {"llm_provider": "bedrock"}
+
+        kwargs = method(Stub())
+        assert "effort" not in kwargs
