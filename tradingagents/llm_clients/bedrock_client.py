@@ -14,8 +14,11 @@ _PASSTHROUGH_KWARGS = (
 )
 
 # Bedrock model IDs may carry a region prefix: 'us.', 'apac.', 'eu.'.
+# The trailing `(?:-\S+)?$` tolerates dated/versioned suffixes such as
+# `-20251001-v1:0` while still anchoring the end so a malformed id like
+# `claude-sonnet-4-6-haiku-variant` cannot slip through.
 _EFFORT_PATTERN = re.compile(
-    r"^(?:[a-z]{2,3}\.)?anthropic\.claude-(opus|sonnet)-\d+-\d+"
+    r"^(?:[a-z]{2,3}\.)?anthropic\.claude-(opus|sonnet)-\d+-\d+(?:-\S+)?$"
 )
 
 
@@ -48,6 +51,8 @@ class BedrockClient(BaseLLMClient):
     def get_llm(self) -> Any:
         self.warn_if_unknown_model()
 
+        # self.base_url is intentionally ignored — Bedrock endpoints are
+        # region-derived (region_name kwarg), not URL-configurable.
         region = (
             os.environ.get("AWS_REGION")
             or os.environ.get("AWS_DEFAULT_REGION")

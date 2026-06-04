@@ -48,7 +48,12 @@ class TestBedrockClient:
         ("us.anthropic.claude-opus-4-7", True),
         ("us.anthropic.claude-sonnet-4-6", True),
         ("anthropic.claude-opus-4-7", True),  # no region prefix
+        ("us.anthropic.claude-opus-4-7-20251001-v1:0", True),  # versioned
         ("us.anthropic.claude-haiku-4-5-20251001-v1:0", False),
+        # Regression guard — anchored end means trailing junk after the
+        # numeric pair (without a `-` separator) cannot match. A model
+        # named like 'claude-sonnet-4-6haiku' should not pass the gate.
+        ("us.anthropic.claude-sonnet-4-6haiku", False),
     ])
     def test_effort_gate_matches_anthropic_semantics(
         self, monkeypatch, model_id, expects_effort

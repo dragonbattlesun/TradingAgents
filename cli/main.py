@@ -654,7 +654,9 @@ def get_user_selections():
             )
         )
         reasoning_effort = ask_openai_reasoning_effort()
-    elif provider_lower == "anthropic":
+    elif provider_lower in ("anthropic", "bedrock"):
+        # Bedrock-on-Anthropic uses the same effort knob as direct
+        # Anthropic — present the same prompt to both.
         console.print(
             create_question_box(
                 "Step 8: Effort Level",
