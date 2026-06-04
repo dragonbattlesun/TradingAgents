@@ -131,7 +131,8 @@ class TestProviderKwargsForBedrock:
         method = self._make_graph_method()
 
         class Stub:
-            config = {"llm_provider": "bedrock", "anthropic_effort": "high"}
+            def __init__(self):
+                self.config = {"llm_provider": "bedrock", "anthropic_effort": "high"}
 
         kwargs = method(Stub())
         assert kwargs.get("effort") == "high"
@@ -140,7 +141,8 @@ class TestProviderKwargsForBedrock:
         method = self._make_graph_method()
 
         class Stub:
-            config = {"llm_provider": "bedrock"}
+            def __init__(self):
+                self.config = {"llm_provider": "bedrock"}
 
         kwargs = method(Stub())
         assert "effort" not in kwargs
