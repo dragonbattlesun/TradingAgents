@@ -573,7 +573,11 @@ def get_user_selections():
         selected_llm_provider = DEFAULT_CONFIG["llm_provider"].lower()
         backend_url = DEFAULT_CONFIG["backend_url"] or provider_default_url(selected_llm_provider)
         console.print(f"[green]✓ LLM provider from environment:[/green] {selected_llm_provider}")
-        console.print(f"[green]✓ Backend URL:[/green] {backend_url}")
+        if backend_url:
+            console.print(f"[green]✓ Backend URL:[/green] {backend_url}")
+        elif selected_llm_provider == "bedrock":
+            region = os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION") or "(boto3 default)"
+            console.print(f"[green]✓ AWS region:[/green] {region}")
         # Still confirm/persist the API key so the run doesn't fail later.
         ensure_api_key(selected_llm_provider)
     else:
