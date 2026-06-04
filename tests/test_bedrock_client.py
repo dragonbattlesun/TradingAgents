@@ -61,8 +61,13 @@ class TestBedrockClient:
         captured = _capture_kwargs(monkeypatch)
         mod.BedrockClient(model=model_id, effort="high").get_llm()
         if expects_effort:
+            # Bedrock Converse splits the Anthropic top-level "effort"
+            # into two fields: thinking.type=adaptive switches extended
+            # thinking on (4.7+ rejects the older "enabled"), and
+            # output_config.effort carries the high/medium/low knob.
             assert captured["kwargs"]["additional_model_request_fields"] == {
-                "thinking": {"type": "high"}
+                "thinking": {"type": "adaptive"},
+                "output_config": {"effort": "high"},
             }
         else:
             assert "additional_model_request_fields" not in captured["kwargs"]

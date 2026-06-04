@@ -65,12 +65,20 @@ class BedrockClient(BaseLLMClient):
             if key in self.kwargs:
                 llm_kwargs[key] = self.kwargs[key]
 
-        # Anthropic's "effort" maps to Converse's
-        # additional_model_request_fields.
+        # Anthropic's top-level "effort" param has no direct equivalent
+        # on Bedrock Converse — the schema splits it into two fields
+        # under additional_model_request_fields:
+        #   thinking.type      -> "adaptive" turns extended thinking on
+        #                         (4.7+ rejects the older "enabled")
+        #   output_config.effort -> "high" / "medium" / "low" depth knob
+        # Bedrock's own error reply spells this mapping out:
+        #   '"thinking.type.enabled" is not supported for this model.
+        #    Use "thinking.type.adaptive" and "output_config.effort"'.
         effort = self.kwargs.get("effort")
         if effort and _supports_effort(self.model):
             llm_kwargs["additional_model_request_fields"] = {
-                "thinking": {"type": effort},
+                "thinking": {"type": "adaptive"},
+                "output_config": {"effort": effort},
             }
 
         return NormalizedChatBedrockConverse(**llm_kwargs)
